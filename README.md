@@ -211,7 +211,7 @@ Create `.env` file:
 
 ```
 PORT=5000
-MONGO_URI=your_mongodb_connection_string
+MONGO_URI=mongodb://localhost:27017/campusV2
 JWT_SECRET=your_secret_key
 ```
 
