@@ -194,7 +194,7 @@ backend/
 ### 1️⃣ Clone the repository
 
 ```
-git clone https://github.com/your-username/campus-club-system.git
+git clone https://github.com/Abhilash1406/campus_club_event_manager.git
 cd campus-club-system
 ```
 
