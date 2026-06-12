@@ -36,42 +36,47 @@ const seed = async () => {
   // Create admin
   const admin = await User.create({
     name: 'Admin User',
-    email: 'admin@campus.edu',
+    email: 'admin@kitsw.ac.in',
     password: 'admin123',
-    role: 'admin'
+    role: 'admin',
+    isVerified: true
   });
 
   // Create organizers
   const techOrganizer = await User.create({
     name: 'Ravi Kumar',
-    email: 'ravi@campus.edu',
+    email: 'ravi@kitsw.ac.in',
     password: 'organizer123',
     role: 'organizer',
+    isVerified: true,
     club: techClub._id
   });
 
   const sportsOrganizer = await User.create({
     name: 'Priya Sharma',
-    email: 'priya@campus.edu',
+    email: 'priya@kitsw.ac.in',
     password: 'organizer123',
     role: 'organizer',
+    isVerified: true,
     club: sportsClub._id
   });
 
   const culturalOrganizer = await User.create({
     name: 'Anita Singh',
-    email: 'anita@campus.edu',
+    email: 'anita@kitsw.ac.in',
     password: 'organizer123',
     role: 'organizer',
+    isVerified: true,
     club: culturalClub._id
   });
 
   // Create students
   const student1 = await User.create({
     name: 'Arjun Mehta',
-    email: 'arjun@campus.edu',
+    email: 'arjun@kitsw.ac.in',
     password: 'student123',
     role: 'student',
+    isVerified: true,
     rollNo: 'CS2021001',
     className: 'B.Tech CSE',
     section: 'A'
@@ -79,9 +84,10 @@ const seed = async () => {
 
   const student2 = await User.create({
     name: 'Sneha Patel',
-    email: 'sneha@campus.edu',
+    email: 'sneha@kitsw.ac.in',
     password: 'student123',
     role: 'student',
+    isVerified: true,
     rollNo: 'CS2021002',
     className: 'B.Tech CSE',
     section: 'B'
@@ -89,9 +95,10 @@ const seed = async () => {
 
   const student3 = await User.create({
     name: 'Rahul Das',
-    email: 'rahul@campus.edu',
+    email: 'rahul@kitsw.ac.in',
     password: 'student123',
     role: 'student',
+    isVerified: true,
     rollNo: 'ME2021010',
     className: 'B.Tech ME',
     section: 'A'
@@ -212,13 +219,13 @@ const seed = async () => {
 
   console.log('\n✅ Seed completed successfully!\n');
   console.log('=== LOGIN CREDENTIALS ===');
-  console.log('Admin:     admin@campus.edu     / admin123');
-  console.log('Tech Org:  ravi@campus.edu      / organizer123');
-  console.log('Sports Org: priya@campus.edu    / organizer123');
-  console.log('Cultural Org: anita@campus.edu  / organizer123');
-  console.log('Student 1: arjun@campus.edu     / student123');
-  console.log('Student 2: sneha@campus.edu     / student123');
-  console.log('Student 3: rahul@campus.edu     / student123');
+  console.log('Admin:     admin@kitsw.ac.in     / admin123');
+  console.log('Tech Org:  ravi@kitsw.ac.in      / organizer123');
+  console.log('Sports Org: priya@kitsw.ac.in    / organizer123');
+  console.log('Cultural Org: anita@kitsw.ac.in  / organizer123');
+  console.log('Student 1: arjun@kitsw.ac.in     / student123');
+  console.log('Student 2: sneha@kitsw.ac.in     / student123');
+  console.log('Student 3: rahul@kitsw.ac.in     / student123');
   console.log('=========================\n');
 
   await mongoose.disconnect();
