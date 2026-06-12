@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { register } from '../services/authService';
+import { register, googleLogin } from '../services/authService';
 import { getClubs } from '../services/clubService';
+import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { GraduationCap } from 'lucide-react';
 
@@ -29,13 +30,26 @@ const Register = () => {
     setLoading(true);
     try {
       const { data } = await register(form);
+      toast.success('Registration successful! Please check your email for the OTP.');
+      navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Registration failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const { data } = await googleLogin({ token: credentialResponse.credential });
       loginUser(data);
-      toast.success('Account created successfully!');
+      toast.success('Google login successful!');
       if (data.role === 'student') navigate('/student/dashboard');
       else if (data.role === 'organizer') navigate('/organizer/dashboard');
       else navigate('/');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Registration failed');
+      toast.error(err.response?.data?.message || 'Google login failed');
     } finally {
       setLoading(false);
     }
@@ -66,7 +80,7 @@ const Register = () => {
                 </div>
                 <div>
                   <label className="label">Email *</label>
-                  <input name="email" type="email" value={form.email} onChange={handleChange} className="input" placeholder="you@campus.edu" required />
+                  <input name="email" type="email" value={form.email} onChange={handleChange} className="input" placeholder="you@example.com" required />
                 </div>
               </div>
 
@@ -114,6 +128,20 @@ const Register = () => {
                 {loading ? 'Creating account...' : 'Create Account'}
               </button>
             </form>
+
+            <div className="mt-4 flex items-center justify-center">
+              <div className="border-t border-gray-200 flex-grow"></div>
+              <span className="px-3 text-sm text-gray-500 bg-white">or</span>
+              <div className="border-t border-gray-200 flex-grow"></div>
+            </div>
+
+            <div className="mt-4 flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => toast.error('Google Login Failed')}
+                useOneTap
+              />
+            </div>
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{' '}

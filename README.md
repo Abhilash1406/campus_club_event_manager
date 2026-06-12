@@ -194,7 +194,7 @@ backend/
 ### 1️⃣ Clone the repository
 
 ```
-git clone https://github.com/Abhilash1406/campus_club_event_manager.git
+git clone https://github.com/your-username/campus-club-system.git
 cd campus-club-system
 ```
 
@@ -211,7 +211,7 @@ Create `.env` file:
 
 ```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/campusV2
+MONGO_URI=your_mongodb_connection_string
 JWT_SECRET=your_secret_key
 ```
 

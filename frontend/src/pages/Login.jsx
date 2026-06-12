@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { login } from '../services/authService';
+import { login, googleLogin } from '../services/authService';
+import { GoogleLogin } from '@react-oauth/google';
 import toast from 'react-hot-toast';
 import { GraduationCap, Eye, EyeOff } from 'lucide-react';
 
@@ -32,16 +33,38 @@ const Login = () => {
       else if (data.role === 'organizer') navigate('/organizer/dashboard');
       else if (data.role === 'admin') navigate('/admin/dashboard');
     } catch (err) {
-      toast.error(err.response?.data?.message || 'Login failed');
+      const errMsg = err.response?.data?.message || 'Login failed';
+      if (errMsg === 'Please verify your email first.') {
+        toast.error(errMsg);
+        navigate(`/verify-otp?email=${encodeURIComponent(form.email)}`);
+      } else {
+        toast.error(errMsg);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    setLoading(true);
+    try {
+      const { data } = await googleLogin({ token: credentialResponse.credential });
+      loginUser(data);
+      toast.success(`Welcome, ${data.name}!`);
+      if (data.role === 'student') navigate('/student/dashboard');
+      else if (data.role === 'organizer') navigate('/organizer/dashboard');
+      else if (data.role === 'admin') navigate('/admin/dashboard');
+    } catch (err) {
+      toast.error(err.response?.data?.message || 'Google login failed');
     } finally {
       setLoading(false);
     }
   };
 
   const demoAccounts = [
-    { label: 'Admin', email: 'admin@campus.edu', password: 'admin123' },
-    { label: 'Tech Organizer', email: 'ravi@campus.edu', password: 'organizer123' },
-    { label: 'Student', email: 'arjun@campus.edu', password: 'student123' },
+    { label: 'Admin', email: 'admin@kitsw.ac.in', password: 'admin123' },
+    { label: 'Tech Organizer', email: 'ravi@kitsw.ac.in', password: 'organizer123' },
+    { label: 'Student', email: 'arjun@kitsw.ac.in', password: 'student123' },
   ];
 
   const fillDemo = (acc) => setForm({ email: acc.email, password: acc.password });
@@ -74,7 +97,7 @@ const Login = () => {
                   value={form.email}
                   onChange={handleChange}
                   className="input"
-                  placeholder="you@campus.edu"
+                  placeholder="you@example.com"
                   required
                 />
               </div>
@@ -106,6 +129,20 @@ const Login = () => {
                 {loading ? 'Signing in...' : 'Sign in'}
               </button>
             </form>
+
+            <div className="mt-4 flex items-center justify-center">
+              <div className="border-t border-gray-200 flex-grow"></div>
+              <span className="px-3 text-sm text-gray-500 bg-white">or</span>
+              <div className="border-t border-gray-200 flex-grow"></div>
+            </div>
+
+            <div className="mt-4 flex justify-center w-full">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => toast.error('Google Login Failed')}
+                useOneTap
+              />
+            </div>
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Don't have an account?{' '}

@@ -7,6 +7,7 @@ import ProtectedRoute from './routes/ProtectedRoute';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import VerifyOTP from './pages/VerifyOTP';
 import EventDetail from './pages/EventDetail';
 import ClubsPage from './pages/ClubsPage';
 
@@ -52,6 +53,7 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/verify-otp" element={<VerifyOTP />} />
           <Route path="/clubs" element={<ClubsPage />} />
           <Route path="/events/:id" element={<EventDetail />} />
           <Route path="/dashboard" element={<RoleRedirect />} />
