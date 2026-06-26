@@ -1,5 +1,6 @@
 const Event = require('../models/Event');
 const Registration = require('../models/Registration');
+const { sendNewEventEmail } = require('../services/emailService');
 
 // @desc    Get all approved events (public)
 // @route   GET /api/events/approved
@@ -48,6 +49,10 @@ const createEvent = async (req, res) => {
       status: 'submitted'
     });
     await event.populate('club', 'name');
+
+    // Trigger email notification asynchronously (Requirement 5)
+    sendNewEventEmail(event).catch(err => console.error("Failed to trigger event email:", err));
+
     res.status(201).json(event);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -193,6 +198,10 @@ const adminApproveEvent = async (req, res) => {
     if (req.body.budget !== undefined) event.budget = req.body.budget;
     if (req.body.venue) event.venue = req.body.venue;
     await event.save();
+
+    // Trigger email notification asynchronously for approved events
+    sendNewEventEmail(event).catch(err => console.error("Failed to trigger event email:", err));
+
     res.json(event);
   } catch (error) {
     res.status(500).json({ message: error.message });
