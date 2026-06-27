@@ -1,5 +1,6 @@
 const nodemailer = require('nodemailer');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 /**
  * Send email notifications to all registered users when a new event is posted.
@@ -9,21 +10,27 @@ const User = require('../models/User');
  */
 const sendNewEventEmail = async (event) => {
   try {
-    // 1. Fetch all registered users
-    const users = await User.find({ email: { $exists: true, $ne: '' } }, 'name email');
+    // 1. Fetch verified registered users
+    const users = await User.find(
+      { isVerified: true, email: { $exists: true, $ne: '' } },
+      'name email'
+    );
     if (!users || users.length === 0) {
-      console.log('No registered users found to send email notifications.');
+      console.log('No verified registered users found to send event email notifications.');
       return;
     }
 
+    console.log(`Sending event notification for approved event ${event._id} to ${users.length} verified users.`);
+
     // 2. Configure nodemailer transporter
-    const transporter = nodemailer.createTransport({
-      service: process.env.EMAIL_SERVICE || 'Gmail',
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
+    const transporter = nodemailer.createTransport(sendEmail.createTransportOptions());
+
+    try {
+      await transporter.verify();
+    } catch (verifyError) {
+      console.error('Event email transporter verification failed:', verifyError);
+      throw verifyError;
+    }
 
     // 3. Format Date and Time
     const eventDate = new Date(event.date);
