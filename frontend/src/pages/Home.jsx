@@ -5,6 +5,8 @@ import EventCard from '../components/EventCard';
 import LoadingSpinner from '../components/LoadingSpinner';
 import { getApprovedEvents } from '../services/eventService';
 import { getClubs } from '../services/clubService';
+// Import the stats service to fetch real-time platform statistics
+import { getStats } from '../services/statsService';
 import { ArrowRight, Calendar, Users, Award, Shield } from 'lucide-react';
 
 const Home = () => {
@@ -13,16 +15,43 @@ const Home = () => {
   const [loadingEvents, setLoadingEvents] = useState(true);
   const [loadingClubs, setLoadingClubs] = useState(true);
 
+  // State for real-time stats fetched from the backend
+  const [statsData, setStatsData] = useState(null);
+  const [loadingStats, setLoadingStats] = useState(true);
+
   useEffect(() => {
     getApprovedEvents().then(r => setEvents(r.data)).catch(() => {}).finally(() => setLoadingEvents(false));
     getClubs().then(r => setClubs(r.data)).catch(() => {}).finally(() => setLoadingClubs(false));
+
+    // Fetch real-time platform statistics from the backend API.
+    // On error, statsData remains null and the UI falls back to 0.
+    getStats()
+      .then(r => setStatsData(r.data))
+      .catch(() => setStatsData(null))
+      .finally(() => setLoadingStats(false));
   }, []);
 
+  // Build the stats array from live API data.
+  // While loading, show '...' as a placeholder.
+  // If the API fails, fall back to 0 for each counter.
   const stats = [
-    { label: 'Active Clubs', value: clubs.length || '10+' },
-    { label: 'Events Hosted', value: '50+' },
-    { label: 'Students Enrolled', value: '2000+' },
-    { label: 'Certificates Issued', value: '1500+' },
+    {
+      // Active Clubs comes from the already-fetched clubs list (not from /api/stats)
+      label: 'Active Clubs',
+      value: loadingClubs ? '...' : clubs.length,
+    },
+    {
+      label: 'Events Hosted',
+      value: loadingStats ? '...' : (statsData?.totalEvents ?? 0),
+    },
+    {
+      label: 'Students Enrolled',
+      value: loadingStats ? '...' : (statsData?.totalUsers ?? 0),
+    },
+    {
+      label: 'Certificates Issued',
+      value: loadingStats ? '...' : (statsData?.totalCertificates ?? 0),
+    },
   ];
 
   return (

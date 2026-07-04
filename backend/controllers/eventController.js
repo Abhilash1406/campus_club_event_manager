@@ -50,8 +50,9 @@ const createEvent = async (req, res) => {
     });
     await event.populate('club', 'name');
 
-    // Trigger email notification asynchronously (Requirement 5)
-    sendNewEventEmail(event).catch(err => console.error("Failed to trigger event email:", err));
+    // NOTE: Email notifications are intentionally NOT sent at proposal-submission
+    // time. Emails are only sent once the admin approves the event so that
+    // students only hear about events that are actually going ahead.
 
     res.status(201).json(event);
   } catch (error) {
@@ -199,8 +200,24 @@ const adminApproveEvent = async (req, res) => {
     if (req.body.venue) event.venue = req.body.venue;
     await event.save();
 
-    // Trigger email notification asynchronously for approved events
-    sendNewEventEmail(event).catch(err => console.error("Failed to trigger event email:", err));
+    // DB-level idempotency guard: only send the email notification once per
+    // event. If this flag is already true (e.g., endpoint was called twice by
+    // mistake), skip the email blast entirely.
+    if (!event.emailNotificationSent) {
+      // Mark as sent BEFORE firing the async blast so that a near-simultaneous
+      // second request also sees the flag as true.
+      await event.updateOne({ emailNotificationSent: true });
+
+      // Trigger email blast asynchronously — does not block the HTTP response.
+      // Pass 'admin-approve' as the triggerPoint label for log traceability.
+      sendNewEventEmail(event, 'admin-approve').catch(err =>
+        console.error('[EventController] Background email blast error:', err)
+      );
+    } else {
+      console.warn(
+        `[EventController] Email already sent for event ${event._id} — skipping duplicate blast.`
+      );
+    }
 
     res.json(event);
   } catch (error) {

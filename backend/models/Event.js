@@ -52,6 +52,12 @@ const eventSchema = new mongoose.Schema({
   certificateTemplate: {
     type: String,
     default: ''
+  },
+  // Tracks whether the approval email notification has already been sent for
+  // this event — prevents duplicate blasts if the approve endpoint is retried.
+  emailNotificationSent: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 
